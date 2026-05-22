@@ -1,10 +1,21 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+set "PYTHONPATH=%CD%"
 
 if exist ".venv\Scripts\python.exe" (
-    ".venv\Scripts\python.exe" -m gold_monitor.monitor --once --force-report
+    set "PYTHON_EXE=.venv\Scripts\python.exe"
 ) else (
-    python -m gold_monitor.monitor --once --force-report
+    set "PYTHON_EXE=python"
 )
 
+"%PYTHON_EXE%" -m pip install -r requirements.txt
+if errorlevel 1 goto done
+
+"%PYTHON_EXE%" -m gold_monitor.monitor --once --force-report
+
+:done
+set "EXIT_CODE=%ERRORLEVEL%"
+echo.
+echo Process exited with code %EXIT_CODE%.
+pause
