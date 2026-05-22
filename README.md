@@ -109,6 +109,11 @@ TWELVEDATA_API_KEY=
 
 ## 실행
 
+두 시스템은 분리되어 있습니다.
+
+- 정기 보고: `gold_monitor.monitor`, 08시/20시 polling 보고
+- 즉시 보고: `gold_monitor.bot`, Telegram에서 `/gold` 입력
+
 한 번 실행하고 현재 시간이 08시 또는 20시이면 전송:
 
 ```powershell
@@ -136,6 +141,16 @@ Telegram 명령 bot 실행:
 cd D:\1work\gold-monitor
 python -m gold_monitor.bot
 ```
+
+Windows 배치 파일:
+
+```powershell
+.\run_monitor.bat
+.\run_bot.bat
+.\run_once_report.bat
+```
+
+정기 보고와 `/gold` 즉시 보고 모두 텍스트 리포트 뒤에 Gold, Silver 각 자산별 2년치 차트를 전송합니다. historical 데이터가 없는 `realtime_only` 상태에서는 차트를 건너뜁니다.
 
 ## 조건 알림 확장
 

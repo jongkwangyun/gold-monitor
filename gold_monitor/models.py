@@ -31,6 +31,7 @@ class LatestPrice:
 @dataclass(frozen=True)
 class HistoricalSeries:
     closes: List[float]
+    dates: List[str]
     source: str
     asset_kind: AssetKind
     symbol: str
@@ -49,6 +50,7 @@ class MetalQuote:
     change_pct: Optional[float]
     market_time: Optional[datetime]
     closes: List[float]
+    dates: List[str]
     ma20: Optional[float]
     ma50: Optional[float]
     ma200: Optional[float]

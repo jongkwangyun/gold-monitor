@@ -26,28 +26,32 @@ def _fmt_ma_line(label: str, price: float, ma_value: Optional[float], currency: 
 
 
 def format_quote_html(quote: MetalQuote) -> str:
+    market_time = quote.market_time.strftime("%Y-%m-%d %H:%M:%S %Z") if quote.market_time else "N/A"
     lines = [
         f"<b>{escape(quote.name)}</b>",
-        f"Price: <b>{_fmt_price(quote.price, quote.currency)}</b>",
-        f"Source: <b>{escape(quote.realtime_source)}</b> ({escape(quote.symbol)})",
-        f"Historical: <b>{escape(quote.historical_source)}</b> ({escape(quote.historical_symbol)})",
-        f"DataQuality: <b>{escape(quote.data_quality)}</b>",
-        f"Stale: <b>{'yes' if quote.stale else 'no'}</b>",
-        f"MA available: <b>{'yes' if quote.ma_available else 'no'}</b>",
-        f"Asset kind: <b>{escape(str(quote.asset_kind.value))}</b>",
-        f"1D: <b>{_fmt_pct(quote.change_pct)}</b>",
+        f"- Real-time price (USD): <b>{_fmt_price(quote.price, quote.currency)}</b>",
+        f"- Query time: <b>{escape(market_time)}</b>",
+        f"- Source: <b>{escape(quote.realtime_source)}</b> ({escape(quote.symbol)})",
+        # f"- 1D: <b>{_fmt_pct(quote.change_pct)}</b>",
     ]
-    if quote.previous_close is not None:
-        lines.append(f"Previous close: {_fmt_price(quote.previous_close, quote.currency)}")
-    if quote.market_time is not None:
-        lines.append(f"Market time: {escape(quote.market_time.strftime('%Y-%m-%d %H:%M:%S %Z'))}")
-    lines.extend(
-        [
-            _fmt_ma_line("MA20", quote.price, quote.ma20, quote.currency),
-            _fmt_ma_line("MA50", quote.price, quote.ma50, quote.currency),
-            _fmt_ma_line("MA200", quote.price, quote.ma200, quote.currency),
-        ]
-    )
+    # if quote.previous_close is not None:
+    #     lines.append(f"- Previous close: {_fmt_price(quote.previous_close, quote.currency)}")
+    # lines.extend(
+    #     [
+    #         f"- Historical source: <b>{escape(quote.historical_source)}</b> ({escape(quote.historical_symbol)})",
+    #         f"- DataQuality: <b>{escape(quote.data_quality)}</b>",
+    #         f"- Stale: <b>{'yes' if quote.stale else 'no'}</b>",
+    #         f"- MA available: <b>{'yes' if quote.ma_available else 'no'}</b>",
+    #         f"- Asset kind: <b>{escape(str(quote.asset_kind.value))}</b>",
+    #     ]
+    # )
+    # lines.extend(
+    #     [
+    #         _fmt_ma_line("MA20", quote.price, quote.ma20, quote.currency),
+    #         _fmt_ma_line("MA50", quote.price, quote.ma50, quote.currency),
+    #         _fmt_ma_line("MA200", quote.price, quote.ma200, quote.currency),
+    #     ]
+    # )
     return "\n".join(lines)
 
 

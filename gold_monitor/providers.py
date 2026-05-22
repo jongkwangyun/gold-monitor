@@ -126,6 +126,7 @@ class TwelveDataProvider:
             if closes:
                 return HistoricalSeries(
                     closes=closes,
+                    dates=[str(value) for value in cached.get("dates", [])],
                     source=f"{self.source}Cache",
                     asset_kind=AssetKind.SPOT,
                     symbol=instrument.spot_symbol,
@@ -152,18 +153,21 @@ class TwelveDataProvider:
 
             rows = list(reversed(values))
             closes: List[float] = []
+            dates: List[str] = []
             last_date = None
             for row in rows:
                 if not isinstance(row, dict) or row.get("close") is None:
                     continue
                 closes.append(float(row["close"]))
+                dates.append(str(row.get("datetime") or ""))
                 last_date = str(row.get("datetime") or last_date)
             if not closes:
                 raise RuntimeError(f"Twelve Data close prices missing for {instrument.spot_symbol}")
 
-            save_daily_cache(cache_name, {"closes": closes, "last_date": last_date})
+            save_daily_cache(cache_name, {"closes": closes, "dates": dates, "last_date": last_date})
             return HistoricalSeries(
                 closes=closes,
+                dates=dates,
                 source=self.source,
                 asset_kind=AssetKind.SPOT,
                 symbol=instrument.spot_symbol,
@@ -177,6 +181,7 @@ class TwelveDataProvider:
                     LOG.warning("Using stale Twelve Data cache for %s", instrument.spot_symbol)
                     return HistoricalSeries(
                         closes=closes,
+                        dates=[str(value) for value in cached.get("dates", [])],
                         source=f"{self.source}Cache",
                         asset_kind=AssetKind.SPOT,
                         symbol=instrument.spot_symbol,
@@ -237,12 +242,17 @@ class YahooDirectProvider:
             raise RuntimeError(f"Yahoo close prices missing for {instrument.yahoo_symbol}")
 
         timestamps = result.get("timestamp") or []
+        dates = [
+            datetime.fromtimestamp(int(value), ZoneInfo(TIMEZONE)).strftime("%Y-%m-%d")
+            for value in timestamps[-len(closes):]
+        ]
         last_date = None
         if timestamps:
             last_date = datetime.fromtimestamp(int(timestamps[-1]), ZoneInfo(TIMEZONE)).strftime("%Y-%m-%d")
 
         return HistoricalSeries(
             closes=closes,
+            dates=dates,
             source=self.source,
             asset_kind=AssetKind.FUTURES,
             symbol=instrument.yahoo_symbol,

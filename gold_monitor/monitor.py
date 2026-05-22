@@ -4,8 +4,9 @@ import time
 from typing import Dict
 
 from common.logging import setup_logging
-from common.telegram import send_telegram_html
+from common.telegram import send_telegram_html, send_telegram_photo
 
+from .chart import render_quote_chart_png
 from .conditions import load_conditions
 from .config import (
     GOLD_SPOT_SYMBOL,
@@ -67,8 +68,26 @@ def run_once(force_report: bool = False) -> None:
             token=TELEGRAM_BOT_TOKEN,
             chat_id=TELEGRAM_CHAT_ID,
         )
+        send_charts(quote_list)
     else:
         LOG.info("No scheduled report due.")
+
+
+def send_charts(quotes) -> None:
+    for quote in quotes:
+        if len(quote.closes) < 2:
+            LOG.info("Skipping chart for %s because historical data is unavailable.", quote.name)
+            continue
+        try:
+            chart_png = render_quote_chart_png(quote)
+            send_telegram_photo(
+                chart_png,
+                caption=f"<b>{quote.name} 2Y Chart</b>\nSource: {quote.historical_source} ({quote.historical_symbol})",
+                token=TELEGRAM_BOT_TOKEN,
+                chat_id=TELEGRAM_CHAT_ID,
+            )
+        except Exception:
+            LOG.exception("Failed to send chart for %s", quote.name)
 
 
 def main() -> int:

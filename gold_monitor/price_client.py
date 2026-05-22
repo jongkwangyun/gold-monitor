@@ -19,6 +19,7 @@ def _build_quote(
     historical: Optional[HistoricalSeries],
 ) -> MetalQuote:
     closes = historical.closes if historical else []
+    dates = historical.dates if historical else []
     previous_close = closes[-1] if closes else None
     change_abs = latest.price - previous_close if previous_close else None
     change_pct = ((latest.price / previous_close) - 1.0) * 100.0 if previous_close else None
@@ -45,6 +46,7 @@ def _build_quote(
         change_pct=change_pct,
         market_time=latest.market_time,
         closes=closes or [latest.price],
+        dates=dates,
         ma20=ma20,
         ma50=ma50,
         ma200=ma200,
