@@ -8,3 +8,7 @@ if exist ".venv\Scripts\python.exe" (
     python -m gold_monitor.monitor
 )
 
+set "EXIT_CODE=%ERRORLEVEL%"
+echo.
+echo Process exited with code %EXIT_CODE%.
+pause
